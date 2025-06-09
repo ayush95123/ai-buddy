@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { useDebouncedEffect } from "../hooks/useDebouncedEffect";
 
 // Create a context object to hold chat-related state globally
 export const ChatContext = createContext();
@@ -32,9 +33,13 @@ export const ChatProvider = ({ children }) => {
   });
 
   // Save chats to localStorage on update
-  useEffect(() => {
-    localStorage.setItem("chats", JSON.stringify(chats));
-  }, [chats]);
+  useDebouncedEffect(
+    () => {
+      localStorage.setItem("chats", JSON.stringify(chats));
+    },
+    [chats],
+    300
+  ); // 300ms debounce
 
   // Save activeChat to localStorage on update
   useEffect(() => {
@@ -54,7 +59,9 @@ export const ChatProvider = ({ children }) => {
   const createNewChat = (initialMessage = "") => {
     const newChat = {
       id: uuidv4(),
-      displayId: `Chat ${new Date().toLocaleDateString("en-GB")} ${new Date().toLocaleTimeString()}`,
+      displayId: `Chat ${new Date().toLocaleDateString(
+        "en-GB"
+      )} ${new Date().toLocaleTimeString()}`,
       messages: initialMessage
         ? [
             {

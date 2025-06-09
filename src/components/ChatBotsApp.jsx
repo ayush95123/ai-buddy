@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import "../css/ChatBotsApp.css";
 import { v4 as uuidv4 } from "uuid";
-import useActiveChatData from "../hooks/useActiveChatData";
 import { ChatContext } from "../contexts/ChatContext";
 import useGeminiChat from "../hooks/useGeminiChat";
 import Message from "../components/Message";
@@ -11,11 +10,9 @@ import Message from "../components/Message";
  * Handles rendering the chat UI, sending messages, and managing chat state
  */
 
-// #TODO local storage
-// #FIXME when entering twice rapidly before response incorrect behaviour
-
 const ChatBotsApp = ({ onGoBack }) => {
-  const { chats, setChats, activeChat, setActiveChat, createNewChat } = useContext(ChatContext);
+  const { chats, setChats, activeChat, setActiveChat, createNewChat } =
+    useContext(ChatContext);
 
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -24,7 +21,10 @@ const ChatBotsApp = ({ onGoBack }) => {
   const activeChatObj = chats?.find((chat) => chat.id === activeChat);
 
   // Custom hook to sync chat messages and history
-  const { messages, chatHistory, setMessages, setChatHistory } = useActiveChatData(chats, activeChat);
+  // const { messages, chatHistory, setMessages, setChatHistory } =
+  //   useActiveChatData(chats, activeChat);
+  const messages = activeChatObj?.messages || [];
+  const chatHistory = activeChatObj?.chatHistory || [];
 
   // Gemini API integration hook
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -65,20 +65,39 @@ const ChatBotsApp = ({ onGoBack }) => {
       return;
     }
 
-    const updatedPromptMessages = [...messages, userMessage];
-    const updatedChatHistory = [...chatHistory, userHistoryObj];
+    //#FIXME
 
-    setMessages(updatedPromptMessages);
-    setChatHistory(updatedChatHistory);
+    // const updatedPromptMessages = [...messages, userMessage];
+    // const updatedChatHistory = [...chatHistory, userHistoryObj];
+
+    // setMessages(updatedPromptMessages);
+    // setChatHistory(updatedChatHistory);
+    // setInputValue("");
+    // setIsTyping(true);
+
+    const messageToSend = inputValue; // Save current input for API
     setInputValue("");
     setIsTyping(true);
 
+    // Update local UI
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.id === activeChat
+          ? {
+              ...chat,
+              messages: [...chat.messages, userMessage],
+              chatHistory: [...chat.chatHistory, userHistoryObj],
+            }
+          : chat
+      )
+    );
+
     try {
-      const currentChatHistory = activeChatObj?.chatHistory || [];
+      // const currentChatHistory = activeChatObj?.chatHistory || [];
 
       const { aiMessageObj, aiHistoryObj } = await sendMessageToGemini(
-        inputValue,
-        currentChatHistory
+        messageToSend,
+        [...chatHistory, userHistoryObj]
       );
 
       if (!aiMessageObj || !aiHistoryObj) {
@@ -86,19 +105,31 @@ const ChatBotsApp = ({ onGoBack }) => {
         return;
       }
 
-      const finalMessages = [...updatedPromptMessages, aiMessageObj];
-      const finalChatHistory = [...updatedChatHistory, aiHistoryObj];
+      // const finalMessages = [...updatedPromptMessages, aiMessageObj];
+      // const finalChatHistory = [...updatedChatHistory, aiHistoryObj];
 
+      // setChats((prevChats) =>
+      //   prevChats.map((chat) =>
+      //     chat.id === activeChat
+      //       ? {
+      //           ...chat,
+      //           messages: finalMessages,
+      //           chatHistory: finalChatHistory,
+      //         }
+      //       : chat
+      //   )
+      // );
+      // Safely append AI response
       setChats((prevChats) =>
-        prevChats.map((chat) =>
-          chat.id === activeChat
-            ? {
-                ...chat,
-                messages: finalMessages,
-                chatHistory: finalChatHistory,
-              }
-            : chat
-        )
+        prevChats.map((chat) => {
+          if (chat.id !== activeChat) return chat;
+
+          return {
+            ...chat,
+            messages: [...chat.messages, aiMessageObj],
+            chatHistory: [...chat.chatHistory, aiHistoryObj],
+          };
+        })
       );
     } catch (error) {
       console.error("Error sending message:", error);
@@ -137,12 +168,17 @@ const ChatBotsApp = ({ onGoBack }) => {
       <div className="chat-list">
         <div className="chat-list-header">
           <h2>Chat List</h2>
-          <i className="bx bx-edit-alt new-chat" onClick={() => createNewChat()}></i>
+          <i
+            className="bx bx-edit-alt new-chat"
+            onClick={() => createNewChat()}
+          ></i>
         </div>
         {chats?.map((chat) => (
           <div
             key={chat.id}
-            className={`chat-list-item ${chat.id === activeChat ? "active" : ""}`}
+            className={`chat-list-item ${
+              chat.id === activeChat ? "active" : ""
+            }`}
             onClick={() => handleSelectChat(chat.id)}
           >
             <h4>{chat.displayId}</h4>
@@ -191,7 +227,10 @@ const ChatBotsApp = ({ onGoBack }) => {
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
           />
-          <i className="fa-solid fa-paper-plane" onClick={handleSendMessage}></i>
+          <i
+            className="fa-solid fa-paper-plane"
+            onClick={handleSendMessage}
+          ></i>
         </form>
       </div>
     </div>
