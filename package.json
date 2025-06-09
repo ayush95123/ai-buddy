@@ -12,6 +12,7 @@
   "dependencies": {
     "@google/genai": "^0.13.0",
     "@google/generative-ai": "^0.24.1",
+    "emoji-picker-react": "^4.12.2",
     "marked": "^15.0.11",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",

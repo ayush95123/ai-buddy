@@ -1,0 +1,57 @@
+.custom-toast {
+  position: fixed;
+  bottom: 80px; /* pushes it above your input box */
+  right: 20px;
+  background-color: #323232;
+  color: #fff;
+  padding: 14px 18px;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  animation: slideIn 0.3s ease;
+  min-width: 250px;
+  max-width: 400px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+}
+
+.toast-icon {
+  font-size: 2rem;
+}
+
+.toast-message {
+  flex: 1;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.toast-close {
+  cursor: pointer;
+  font-size: 1rem;
+  padding-left: 8px;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,5 +1,6 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { useDebouncedEffect } from "../hooks/useDebouncedEffect";
 
 // Create a context object to hold chat-related state globally
 export const ChatContext = createContext();
@@ -10,11 +11,44 @@ export const ChatContext = createContext();
  * providing global state and functions related to chat operations.
  */
 export const ChatProvider = ({ children }) => {
-  // State to hold all chat sessions
-  const [chats, setChats] = useState([]);
+  // Load chats from localStorage on first render
+  const [chats, setChats] = useState(() => {
+    try {
+      const stored = localStorage.getItem("chats");
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      console.error("Failed to parse chats from localStorage", e);
+      return [];
+    }
+  });
 
-  // State to track the currently active chat (by ID)
-  const [activeChat, setActiveChat] = useState(null);
+  // Load activeChat from localStorage on first render
+  const [activeChat, setActiveChat] = useState(() => {
+    try {
+      return localStorage.getItem("activeChat") || null;
+    } catch (e) {
+      console.error("Failed to read activeChat from localStorage", e);
+      return null;
+    }
+  });
+
+  // Save chats to localStorage on update
+  useDebouncedEffect(
+    () => {
+      localStorage.setItem("chats", JSON.stringify(chats));
+    },
+    [chats],
+    300
+  ); // 300ms debounce
+
+  // Save activeChat to localStorage on update
+  useEffect(() => {
+    if (activeChat !== null) {
+      localStorage.setItem("activeChat", activeChat);
+    } else {
+      localStorage.removeItem("activeChat");
+    }
+  }, [activeChat]);
 
   /**
    * Creates a new chat session and sets it as the active chat.
@@ -24,10 +58,10 @@ export const ChatProvider = ({ children }) => {
    */
   const createNewChat = (initialMessage = "") => {
     const newChat = {
-      id: uuidv4(), // Unique identifier for the chat
+      id: uuidv4(),
       displayId: `Chat ${new Date().toLocaleDateString(
         "en-GB"
-      )} ${new Date().toLocaleTimeString()}`, // Display label
+      )} ${new Date().toLocaleTimeString()}`,
       messages: initialMessage
         ? [
             {
@@ -43,14 +77,10 @@ export const ChatProvider = ({ children }) => {
         : [],
     };
 
-    // Add new chat to the beginning of the chat list
     setChats((prev) => [newChat, ...prev]);
-
-    // Set this newly created chat as the active chat
     setActiveChat(newChat.id);
   };
 
-  // Provide chat state and manipulation functions to the app
   return (
     <ChatContext.Provider
       value={{ chats, setChats, activeChat, setActiveChat, createNewChat }}

@@ -1,0 +1,91 @@
+.msg-form {
+  min-height: 6rem;
+  background-color: #161c2c;
+  display: flex;
+  align-items: center;
+  padding-right: 5rem;
+  gap: 1.5rem;
+  box-shadow: 0 -0.2rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.msg-form i {
+  font-size: 2.5rem;
+  color: #7b8ebc;
+  cursor: pointer;
+}
+
+.msg-form button {
+  background: transparent;
+  border: none;
+  padding: 0.4rem;
+  cursor: pointer;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.msg-form button:hover {
+  transform: scale(1.1);
+  opacity: 0.85;
+}
+
+.msg-form button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(100, 100, 255, 0.3);
+  border-radius: 0.25rem;
+}
+
+/* Optional: spacing between icons */
+.msg-form button + button {
+  margin-left: 0.5rem;
+}
+
+.emoji {
+  width: 10rem;
+  display: flex;
+  justify-content: center;
+}
+
+.msg-input {
+  flex-grow: 1;
+  background-color: transparent;
+  border: none;
+  font-size: 1.8rem;
+  color: #7b8ebc;
+}
+
+.msg-input::placeholder {
+  font-size: 1.8rem;
+  color: #7b8ebc;
+  font-weight: 200;
+}
+
+.msg-input:focus::placeholder {
+  opacity: 0;
+}
+
+.msg-emoji-wrapper {
+  position: relative;
+}
+
+.emoji-picker {
+  position: absolute;
+  bottom: 80px;
+  left: 20px;
+  z-index: 1000;
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.EmojiPickerReact {
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.EmojiPickerReact::-webkit-scrollbar {
+  display: none;
+}
