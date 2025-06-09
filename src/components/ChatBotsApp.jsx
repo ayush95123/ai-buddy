@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ChatContext } from "../contexts/ChatContext";
 import useGeminiChat from "../hooks/useGeminiChat";
 import Message from "../components/Message";
+import Toast from "./Toast";
 
 /**
  * ChatBotsApp - Main chat application component
@@ -16,13 +17,13 @@ const ChatBotsApp = ({ onGoBack }) => {
 
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   // Get the current active chat object
   const activeChatObj = chats?.find((chat) => chat.id === activeChat);
 
   // Custom hook to sync chat messages and history
-  // const { messages, chatHistory, setMessages, setChatHistory } =
-  //   useActiveChatData(chats, activeChat);
+
   const messages = activeChatObj?.messages || [];
   const chatHistory = activeChatObj?.chatHistory || [];
 
@@ -32,7 +33,6 @@ const ChatBotsApp = ({ onGoBack }) => {
 
   // Ref to scroll to the bottom of chat
   const chatEndRef = useRef(null);
-
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -65,16 +65,6 @@ const ChatBotsApp = ({ onGoBack }) => {
       return;
     }
 
-    //#FIXME
-
-    // const updatedPromptMessages = [...messages, userMessage];
-    // const updatedChatHistory = [...chatHistory, userHistoryObj];
-
-    // setMessages(updatedPromptMessages);
-    // setChatHistory(updatedChatHistory);
-    // setInputValue("");
-    // setIsTyping(true);
-
     const messageToSend = inputValue; // Save current input for API
     setInputValue("");
     setIsTyping(true);
@@ -105,20 +95,6 @@ const ChatBotsApp = ({ onGoBack }) => {
         return;
       }
 
-      // const finalMessages = [...updatedPromptMessages, aiMessageObj];
-      // const finalChatHistory = [...updatedChatHistory, aiHistoryObj];
-
-      // setChats((prevChats) =>
-      //   prevChats.map((chat) =>
-      //     chat.id === activeChat
-      //       ? {
-      //           ...chat,
-      //           messages: finalMessages,
-      //           chatHistory: finalChatHistory,
-      //         }
-      //       : chat
-      //   )
-      // );
       // Safely append AI response
       setChats((prevChats) =>
         prevChats.map((chat) => {
@@ -170,7 +146,15 @@ const ChatBotsApp = ({ onGoBack }) => {
           <h2>Chat List</h2>
           <i
             className="bx bx-edit-alt new-chat"
-            onClick={() => createNewChat()}
+            onClick={() => {
+              if (chats.length >= 10) {
+                setToastMessage(
+                  "Chat limit reached. Please delete an old chat to start a new one."
+                );
+              } else {
+                createNewChat();
+              }
+            }}
           ></i>
         </div>
         {chats?.map((chat) => (
@@ -233,6 +217,9 @@ const ChatBotsApp = ({ onGoBack }) => {
           ></i>
         </form>
       </div>
+      {toastMessage && (
+        <Toast message={toastMessage} onClose={() => setToastMessage("")} />
+      )}
     </div>
   );
 };
