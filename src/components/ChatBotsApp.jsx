@@ -5,6 +5,8 @@ import { ChatContext } from "../contexts/ChatContext";
 import useGeminiChat from "../hooks/useGeminiChat";
 import Message from "../components/Message";
 import Toast from "./Toast";
+import EmojiPicker from "emoji-picker-react";
+import { useClickOutside } from "../hooks/useClickOutside";
 
 /**
  * ChatBotsApp - Main chat application component
@@ -18,6 +20,7 @@ const ChatBotsApp = ({ onGoBack }) => {
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   // Get the current active chat object
   const activeChatObj = chats?.find((chat) => chat.id === activeChat);
@@ -41,6 +44,20 @@ const ChatBotsApp = ({ onGoBack }) => {
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
   };
+
+  //Handle selecting an emoji
+  const handleEmojiClick = (emojiData) => {
+    setInputValue((prev) => prev + emojiData.emoji);
+  };
+
+  //Toggle emoji picker
+  const toggleEmojiPicker = () => {
+    setShowEmojiPicker((prev) => !prev);
+  };
+
+  //Emoji ref and click outside to close picker
+  const emojiRef = useRef(null);
+  useClickOutside(emojiRef, () => setShowEmojiPicker(false), showEmojiPicker);
 
   // Handle sending of user message
   const handleSendMessage = async () => {
@@ -198,24 +215,44 @@ const ChatBotsApp = ({ onGoBack }) => {
         </div>
 
         {/* AI Typing Indicator */}
-        {isTyping && <div className="typing">Typing...</div>}
+        {isTyping && (
+          <div className="typing">
+            AI is typing
+            <div className="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        )}
 
         {/* Message Input Form */}
-        <form className="msg-form" onSubmit={(e) => e.preventDefault()}>
-          <i className="fa-solid fa-face-smile emoji"></i>
-          <input
-            type="text"
-            className="msg-input"
-            placeholder="Type a message..."
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-          />
-          <i
-            className="fa-solid fa-paper-plane"
-            onClick={handleSendMessage}
-          ></i>
-        </form>
+        <div className="msg-emoji-wrapper">
+          <form className="msg-form" onSubmit={(e) => e.preventDefault()}>
+            <i
+              className="fa-solid fa-face-smile emoji"
+              onClick={toggleEmojiPicker}
+            ></i>
+            <input
+              type="text"
+              className="msg-input"
+              placeholder="Type a message..."
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+            />
+            <i
+              className="fa-solid fa-paper-plane"
+              onClick={handleSendMessage}
+            ></i>
+          </form>
+          {/* Emoji Picker */}
+          {showEmojiPicker && (
+            <div className="emoji-picker" ref={emojiRef}>
+              <EmojiPicker onEmojiClick={handleEmojiClick} theme="dark" />
+            </div>
+          )}
+        </div>
       </div>
       {toastMessage && (
         <Toast message={toastMessage} onClose={() => setToastMessage("")} />
