@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { ChatBotsStart } from "./components/ChatBotsStart";
-import ChatBotsApp from "./components/ChatBotsApp";
 import { ChatContext } from "./contexts/ChatContext";
+import ChatApp from "./components/Chat/ChatApp";
 
 const App = () => {
   const [isChatting, setIsChatting] = useState(false);
@@ -22,7 +22,7 @@ const App = () => {
   return (
     <div className="container">
       {isChatting ? (
-        <ChatBotsApp
+        <ChatApp
           onGoBack={handleGoBack}
         />
       ) : (

@@ -1,19 +1,22 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import "../css/ChatBotsApp.css";
+import "../../styles/chat/ChatApp.css";
 import { v4 as uuidv4 } from "uuid";
-import { ChatContext } from "../contexts/ChatContext";
-import useGeminiChat from "../hooks/useGeminiChat";
-import Message from "../components/Message";
+import { ChatContext } from "../../contexts/ChatContext";
+import useGeminiChat from "../../hooks/useGeminiChat";
+import Message from "./Message";
 import Toast from "./Toast";
 import EmojiPicker from "emoji-picker-react";
-import { useClickOutside } from "../hooks/useClickOutside";
+import { useClickOutside } from "../../hooks/useClickOutside";
+import ChatList from "./ChatList";
+import ChatWindow from "./ChatWindow";
+import MessageInput from "./MessageInput";
 
 /**
  * ChatBotsApp - Main chat application component
  * Handles rendering the chat UI, sending messages, and managing chat state
  */
 
-const ChatBotsApp = ({ onGoBack }) => {
+const ChatApp = ({ onGoBack }) => {
   const { chats, setChats, activeChat, setActiveChat, createNewChat } =
     useContext(ChatContext);
 
@@ -100,8 +103,6 @@ const ChatBotsApp = ({ onGoBack }) => {
     );
 
     try {
-      // const currentChatHistory = activeChatObj?.chatHistory || [];
-
       const { aiMessageObj, aiHistoryObj } = await sendMessageToGemini(
         messageToSend,
         [...chatHistory, userHistoryObj]
@@ -157,108 +158,44 @@ const ChatBotsApp = ({ onGoBack }) => {
 
   return (
     <div className="chat-app">
-      {/* Sidebar: Chat List */}
-      <div className="chat-list">
-        <div className="chat-list-header">
-          <h2>Chat List</h2>
-          <i
-            className="bx bx-edit-alt new-chat"
-            onClick={() => {
-              if (chats.length >= 10) {
-                setToastMessage(
-                  "Chat limit reached. Please delete an old chat to start a new one."
-                );
-              } else {
-                createNewChat();
-              }
-            }}
-          ></i>
-        </div>
-        {chats?.map((chat) => (
-          <div
-            key={chat.id}
-            className={`chat-list-item ${
-              chat.id === activeChat ? "active" : ""
-            }`}
-            onClick={() => handleSelectChat(chat.id)}
-          >
-            <h4>{chat.displayId}</h4>
-            <i
-              className="bx bx-x-circle"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteChat(chat.id);
-              }}
-            ></i>
-          </div>
-        ))}
-      </div>
+      <ChatList
+        chats={chats}
+        activeChat={activeChat}
+        onSelectChat={handleSelectChat}
+        onDeleteChat={handleDeleteChat}
+        onNewChat={createNewChat}
+        onLimitReached={() =>
+          setToastMessage("Chat limit reached. Please delete an old chat.")
+        }
+      />
 
-      {/* Main Chat Window */}
       <div className="chat-window">
-        <div className="chat-title">
-          <h3>Chat with AI</h3>
-          <i className="bx bx-arrow-back arrow" onClick={onGoBack}></i>
-        </div>
+        <ChatWindow
+          onGoBack = {onGoBack}
+          messages={messages}
+          isTyping={isTyping}
+          chatEndRef={chatEndRef}
+        />
 
-        <div className="chat">
-          {messages.map((msg, index) => (
-            <Message
-              key={msg.message_id || index}
-              type={msg.type}
-              text={msg.text}
-              timestamp={msg.timestamp}
-            />
-          ))}
-          {/* Auto scroll anchor */}
-          <div ref={chatEndRef}></div>
-        </div>
-
-        {/* AI Typing Indicator */}
-        {isTyping && (
-          <div className="typing">
-            AI is typing
-            <div className="typing-dots">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-          </div>
-        )}
-
-        {/* Message Input Form */}
-        <div className="msg-emoji-wrapper">
-          <form className="msg-form" onSubmit={(e) => e.preventDefault()}>
-            <i
-              className="fa-solid fa-face-smile emoji"
-              onClick={toggleEmojiPicker}
-            ></i>
-            <input
-              type="text"
-              className="msg-input"
-              placeholder="Type a message..."
-              value={inputValue}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-            />
-            <i
-              className="fa-solid fa-paper-plane"
-              onClick={handleSendMessage}
-            ></i>
-          </form>
-          {/* Emoji Picker */}
-          {showEmojiPicker && (
-            <div className="emoji-picker" ref={emojiRef}>
-              <EmojiPicker onEmojiClick={handleEmojiClick} theme="dark" />
-            </div>
-          )}
-        </div>
+        <MessageInput
+          inputValue={inputValue}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onSend={handleSendMessage}
+          showEmojiPicker={showEmojiPicker}
+          toggleEmojiPicker={toggleEmojiPicker}
+          emojiRef={emojiRef}
+          onEmojiClick={handleEmojiClick}
+        />
       </div>
-      {toastMessage && (
-        <Toast message={toastMessage} onClose={() => setToastMessage("")} />
-      )}
+       {toastMessage && (
+      <Toast
+        message={toastMessage}
+        onClose={() => setToastMessage("")}
+      />
+    )}
     </div>
   );
 };
 
-export default ChatBotsApp;
+export default ChatApp;

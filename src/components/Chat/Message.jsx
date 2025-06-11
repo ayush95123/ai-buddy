@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import "../../styles/chat/Message.css";
 
 const Message = ({ type, text, timestamp }) => {
   return (

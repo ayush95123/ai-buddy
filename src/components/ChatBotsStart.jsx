@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import "../css/ChatBotsStart.css";
+import "../styles/chat/ChatBotsStart.css";
 import { ChatContext } from "../contexts/ChatContext";
 
 export const ChatBotsStart = ({ onStartChat }) => {
