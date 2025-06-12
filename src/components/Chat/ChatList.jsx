@@ -1,6 +1,24 @@
-import React from "react";
-import  "../../styles/chat/ChatList.css"
-const ChatList = ({ chats, activeChat, onSelectChat, onDeleteChat, onNewChat, onLimitReached }) => (
+import "../../styles/chat/ChatList.css";
+
+/**
+ * ChatList Component
+ * Renders a list of all chat sessions with options to select, create, or delete chats.
+ *
+ * @param {Array} chats - All chat objects.
+ * @param {string|null} activeChat - ID of the currently selected chat.
+ * @param {Function} onSelectChat - Called when a chat is clicked.
+ * @param {Function} onDeleteChat - Called when a chat's delete icon is clicked.
+ * @param {Function} onNewChat - Called to create a new chat.
+ * @param {Function} onLimitReached - Called when chat limit is hit (e.g. 10).
+ */
+const ChatList = ({
+  chats,
+  activeChat,
+  onSelectChat,
+  onDeleteChat,
+  onNewChat,
+  onLimitReached,
+}) => (
   <div className="chat-list">
     <div className="chat-list-header">
       <h2>Chat List</h2>
@@ -9,6 +27,7 @@ const ChatList = ({ chats, activeChat, onSelectChat, onDeleteChat, onNewChat, on
         onClick={() => (chats.length >= 10 ? onLimitReached() : onNewChat())}
       ></i>
     </div>
+
     {chats.map((chat) => (
       <div
         key={chat.id}
@@ -17,9 +36,9 @@ const ChatList = ({ chats, activeChat, onSelectChat, onDeleteChat, onNewChat, on
       >
         <h4>{chat.displayId}</h4>
         <i
-          className="bx bx-x-circle"
+          className="bx bx-x-circle delete-icon"
           onClick={(e) => {
-            e.stopPropagation();
+            e.stopPropagation(); // Prevents triggering chat selection
             onDeleteChat(chat.id);
           }}
         ></i>

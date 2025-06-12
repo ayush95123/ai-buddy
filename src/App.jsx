@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { ChatBotsStart } from "./components/ChatBotsStart";
+import { CerebroHome } from "./components/CerebroHome";
 import { ChatContext } from "./contexts/ChatContext";
 import ChatApp from "./components/Chat/ChatApp";
 
@@ -18,15 +18,13 @@ const App = () => {
   const handleGoBack = () => {
     setIsChatting(false);
   };
-  
+
   return (
     <div className="container">
       {isChatting ? (
-        <ChatApp
-          onGoBack={handleGoBack}
-        />
+        <ChatApp onGoBack={handleGoBack} />
       ) : (
-        <ChatBotsStart onStartChat={handleStartChat} />
+        <CerebroHome onStartChat={handleStartChat} />
       )}
     </div>
   );

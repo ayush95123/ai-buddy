@@ -2,28 +2,33 @@ import React, { useContext } from "react";
 import "../styles/chat/ChatBotsStart.css";
 import { ChatContext } from "../contexts/ChatContext";
 
-export const ChatBotsStart = ({ onStartChat }) => {
+/**
+ * CerebroHome - Landing screen for Cerebro.
+ * Lists all available AI tools like ChatAI, and allows users to launch them.
+ */
+export const CerebroHome = ({ onStartChat }) => {
   const { setChats, setActiveChat, createNewChat } = useContext(ChatContext);
 
-  const handleStartChat = () => {
+  const handleLaunchChatAI = () => {
     const storedChats = localStorage.getItem("chats");
 
     if (storedChats) {
       const parsedChats = JSON.parse(storedChats);
       setChats(parsedChats);
-      setActiveChat(parsedChats[0]?.id || null); // Activate first chat if exists
+      setActiveChat(parsedChats[0]?.id || null);
     } else {
-      createNewChat(); // No previous chats, start a new one
+      createNewChat();
     }
 
-    onStartChat(); // Navigate to main chat UI
+    onStartChat(); // Navigate to ChatAI tool screen
   };
 
   return (
     <div className="start-page">
-      <button className="start-page-btn" onClick={handleStartChat}>
+      <button className="start-page-btn" onClick={handleLaunchChatAI}>
         Chat AI
       </button>
+      {/* Later you can add more tools here */}
     </div>
   );
 };
