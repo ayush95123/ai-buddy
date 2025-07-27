@@ -8,16 +8,23 @@ import MessageInput from "./MessageInput";
 import { useChatLogic } from "../../hooks/useChatLogic";
 import { useKeyDown } from "../../hooks/useKeyDown";
 import { useEmojiPicker } from "../../hooks/useEmojiPicker";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Main Chat App Component
  * Renders the layout and wiring of chat UI, handles state and events.
  */
 
-const ChatApp = ({ onGoBack }) => {
+const ChatApp = () => {
   const { chats, setChats, activeChat, setActiveChat, createNewChat } =
     useContext(ChatContext);
 
+  if (chats.length === 0) {
+    createNewChat();
+  }
+
+  const navigate = useNavigate();
+  const onGoBack = () => navigate("/");
   const [toastMessage, setToastMessage] = useState("");
 
   // Get current active chat object

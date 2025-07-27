@@ -1,32 +1,19 @@
-import React, { useContext, useState } from "react";
 import { CerebroHome } from "./components/CerebroHome";
-import { ChatContext } from "./contexts/ChatContext";
 import ChatApp from "./components/Chat/ChatApp";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import MoodUIHome from "./components/MoodUI/MoodUIHome";
 
 const App = () => {
-  const [isChatting, setIsChatting] = useState(false);
-  const { chats, createNewChat } = useContext(ChatContext);
-
-  const handleStartChat = () => {
-    setIsChatting(true);
-
-    if (chats.length === 0) {
-      createNewChat();
-    }
-  };
-
-  const handleGoBack = () => {
-    setIsChatting(false);
-  };
-
   return (
-    <div className="container">
-      {isChatting ? (
-        <ChatApp onGoBack={handleGoBack} />
-      ) : (
-        <CerebroHome onStartChat={handleStartChat} />
-      )}
-    </div>
+    <BrowserRouter>
+      <div className="container">
+        <Routes>
+          <Route path="/" element={<CerebroHome />} />
+          <Route path="/chat" element={<ChatApp />} />
+          <Route path="/moodboard" element={<MoodUIHome />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 };
 
